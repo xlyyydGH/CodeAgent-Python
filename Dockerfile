@@ -4,7 +4,7 @@
 # The existing python-service remains available internally on port 8000.
 # =============================================================================
 
-FROM node:22-slim AS frontend-build
+FROM node:26-slim AS frontend-build
 
 WORKDIR /app/frontend
 
