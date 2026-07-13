@@ -1,0 +1,53 @@
+services:
+  codeagent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: codeagent-python:latest
+    container_name: codeagent-python
+    ports:
+      - "${ZHIKUN_PORT:-8080}:8080"
+    environment:
+      - LLM_PROVIDER_DASHSCOPE_API_KEY=${LLM_PROVIDER_DASHSCOPE_API_KEY:-}
+      - LLM_PROVIDER_DASHSCOPE_BASE_URL=${LLM_PROVIDER_DASHSCOPE_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      - LLM_PROVIDER_DASHSCOPE_MODEL=${LLM_PROVIDER_DASHSCOPE_MODEL:-}
+      - LLM_PROVIDER_DEEPSEEK_API_KEY=${LLM_PROVIDER_DEEPSEEK_API_KEY:-}
+      - LLM_PROVIDER_DEEPSEEK_BASE_URL=${LLM_PROVIDER_DEEPSEEK_BASE_URL:-https://api.deepseek.com/v1}
+      - LLM_PROVIDER_DEEPSEEK_MODEL=${LLM_PROVIDER_DEEPSEEK_MODEL:-}
+      - LLM_PROVIDER_MOONSHOT_API_KEY=${LLM_PROVIDER_MOONSHOT_API_KEY:-}
+      - LLM_PROVIDER_MOONSHOT_BASE_URL=${LLM_PROVIDER_MOONSHOT_BASE_URL:-https://api.moonshot.cn/v1}
+      - LLM_PROVIDER_MOONSHOT_MODEL=${LLM_PROVIDER_MOONSHOT_MODEL:-}
+      - LLM_PROVIDER_XFYUN_API_KEY=${LLM_PROVIDER_XFYUN_API_KEY:-}
+      - LLM_PROVIDER_XFYUN_BASE_URL=${LLM_PROVIDER_XFYUN_BASE_URL:-https://maas-api.cn-huabei-1.xf-yun.com/v2}
+      - LLM_PROVIDER_XFYUN_MODEL=${LLM_PROVIDER_XFYUN_MODEL:-xopqwen36v35b}
+      - LLM_PROVIDER_ZHIPU_API_KEY=${LLM_PROVIDER_ZHIPU_API_KEY:-}
+      - LLM_PROVIDER_ZHIPU_BASE_URL=${LLM_PROVIDER_ZHIPU_BASE_URL:-https://open.bigmodel.cn/api/paas/v4}
+      - LLM_PROVIDER_ZHIPU_MODEL=${LLM_PROVIDER_ZHIPU_MODEL:-}
+      - LLM_PROVIDER_MINIMAX_API_KEY=${LLM_PROVIDER_MINIMAX_API_KEY:-}
+      - LLM_PROVIDER_MINIMAX_BASE_URL=${LLM_PROVIDER_MINIMAX_BASE_URL:-https://api.minimax.chat/v1}
+      - LLM_PROVIDER_MINIMAX_MODEL=${LLM_PROVIDER_MINIMAX_MODEL:-}
+      - LLM_PROVIDER_ZENMUX_API_KEY=${LLM_PROVIDER_ZENMUX_API_KEY:-}
+      - LLM_PROVIDER_ZENMUX_BASE_URL=${LLM_PROVIDER_ZENMUX_BASE_URL:-}
+      - LLM_PROVIDER_ZENMUX_MODEL=${LLM_PROVIDER_ZENMUX_MODEL:-}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      - LLM_DEFAULT_MODEL=${LLM_DEFAULT_MODEL:-qwen3.7-max}
+      - LLM_MODELS=${LLM_MODELS:-}
+      - PYTHON_SERVICE_URL=http://127.0.0.1:8000
+      - ZHIKUN_DATA_DIR=/app/backend-python/data
+      - LOG_DIR=/app/log
+    volumes:
+      - codeagent-data:/app/backend-python/data
+      - ${WORKSPACE_PATH:-./workspace}:/app/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  codeagent-data:
+    driver: local
