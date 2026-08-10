@@ -48,7 +48,7 @@ rich==15.0.0
 playwright==1.58.0  # 安装后需执行: python -m playwright install chromium
 
 # ──── HTTP_API 域 ────
-jsonpath-ng>=1.6.0
+jsonpath-ng>=1.8.0
 
 # ──── F3/F33/F25 可视化与分析功能依赖 ────
 radon>=6.0.1
