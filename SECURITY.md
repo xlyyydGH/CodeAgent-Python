@@ -10,12 +10,10 @@ CodeAgent-Python incorporates multiple layers of security to protect users and t
 
 ## Reporting Vulnerabilities
 
-**Please do NOT report security vulnerabilities through public GitHub Issues.**
+If you discover a security vulnerability, please report it through the repository's private security reporting channel. If that channel is unavailable, open a GitHub issue without including secrets or full exploit details, and request private follow-up.
 
-If you discover a security vulnerability, please report it responsibly:
-
-1. Email **alizhikun@gmail.com** with a detailed description
-2. Include steps to reproduce the vulnerability
+1. Include a concise description and steps to reproduce
+2. Do not publish API keys, tokens, personal data, or weaponized exploit code
 3. Allow reasonable time for a fix before public disclosure
 
 We will acknowledge receipt within 48 hours and aim to provide an initial assessment within 7 business days.
