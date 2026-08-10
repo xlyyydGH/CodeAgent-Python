@@ -2,8 +2,6 @@
 
 基于 **FastAPI、React 与 WebSocket** 的浏览器端 AI 编程 Agent，支持代码检索、工具调用、权限审批、上下文管理、执行验证和多 Agent 协作。
 
-> 基于 MIT 许可的 [ZhikunCode](https://github.com/zhikunqingtao/zhikuncode) 进行 Python-native 架构改写。
-
 ## 功能
 
 - QueryLoop 编排模型调用、工具执行、结果回填与验证。
