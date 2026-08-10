@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.source="https://github.com/xlyyydGH/CodeAgent-Pyt
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHON_SERVICE_URL=http://127.0.0.1:8000 \
-    ZHIKUN_DATA_DIR=/app/backend-python/data \
+    CODEAGENT_DATA_DIR=/app/backend-python/data \
     LOG_DIR=/app/log
 
 RUN apt-get update && \
@@ -31,7 +31,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -r zhikun && useradd -r -g zhikun -d /app -s /bin/sh zhikun
+RUN groupadd -r codeagent && useradd -r -g codeagent -d /app -s /bin/sh codeagent
 
 WORKDIR /app
 
@@ -45,9 +45,9 @@ COPY run.py ./run.py
 RUN pip install --no-cache-dir -r backend-python/requirements.txt && \
     pip install --no-cache-dir -r python-service/requirements.txt && \
     mkdir -p /app/backend-python/data /app/workspace /app/log && \
-    chown -R zhikun:zhikun /app
+    chown -R codeagent:codeagent /app
 
-USER zhikun
+USER codeagent
 
 EXPOSE 8080
 
