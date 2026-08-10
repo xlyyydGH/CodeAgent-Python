@@ -1,6 +1,6 @@
 # Changelog
 
-本文件记录 ZhikunCode 项目的所有重要变更。
+本文件记录 CodeAgent-Python 项目的所有重要变更。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
@@ -82,7 +82,3 @@
 - 命令注入防护
 - 基于权限的工具执行机制
 
-[1.2.0]: https://github.com/zhikuncode/zhikuncode/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/zhikuncode/zhikuncode/compare/v1.0.1...v1.1.0
-[1.0.1]: https://github.com/zhikuncode/zhikuncode/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/zhikuncode/zhikuncode/releases/tag/v1.0.0

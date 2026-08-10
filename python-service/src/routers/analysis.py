@@ -45,7 +45,7 @@ def merge_openapi_specs(python_spec: dict, java_spec: dict) -> dict:
     merged = {
         "openapi": "3.0.3",
         "info": {
-            "title": "ZhikunCode API (Merged)",
+            "title": "CodeAgent-Python API",
             "version": "1.0.0",
             "description": "Combined API specification from Java Backend and Python Service",
         },

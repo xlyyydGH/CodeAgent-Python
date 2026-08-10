@@ -89,7 +89,7 @@ class JsErrorsRequest(BrowserRequestBase):
 class SemanticSnapshotRequest(BrowserRequestBase):
     """语义快照请求 — 基于 Playwright accessibility.snapshot() 产出可交互元素树
 
-    对齐 ZhikunCode 差异化升级方案 v1.5 升级项 A MVP。
+    浏览器 Agent 差异化升级方案 v1.5 升级项 A MVP。
     """
     selector: Optional[str] = Field(
         default=None,

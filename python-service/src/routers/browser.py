@@ -288,7 +288,7 @@ async def get_js_errors(req: JsErrorsRequest) -> BrowserResponse:
 
 @router.post("/snapshot-semantic")
 async def snapshot_semantic(req: SemanticSnapshotRequest) -> BrowserResponse:
-    """语义快照 — ZhikunCode v1.5 升级项 A MVP。
+    """语义快照 — 浏览器 Agent 升级项 A MVP。
 
     基于 Playwright accessibility.snapshot() 返回页面的语义 DOM 树，
     仅包含可交互与有语义的节点 (role/name/value)，相比原始 HTML 体积小 10-100 倍。

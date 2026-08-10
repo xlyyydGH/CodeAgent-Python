@@ -43,7 +43,7 @@ stdout_console = Console()       # LLM 内容输出到 stdout
 def _version_callback(value: bool):
     if value:
         try:
-            v = pkg_version("zhikuncode-python-service")
+            v = pkg_version("codeagent-python-service")
         except PackageNotFoundError:
             v = "1.0.0"
         print(f"aica {v}")

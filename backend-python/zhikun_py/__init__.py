@@ -1,3 +1,3 @@
-"""Python-native ZhikunCode backend package."""
+"""Python backend package for CodeAgent-Python."""
 
 __all__ = ["models"]

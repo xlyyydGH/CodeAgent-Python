@@ -73,7 +73,7 @@ load_dotenv_file(ROOT / ".env")
 
 DATA_DIR = Path(os.getenv("ZHIKUN_DATA_DIR", ROOT / "backend-python" / "data"))
 STATE_FILE = DATA_DIR / "state.json"
-SQLITE_FILE = DATA_DIR / "zhikuncode.db"
+SQLITE_FILE = DATA_DIR / "codeagent.db"
 UPLOAD_DIR = DATA_DIR / "attachments"
 AGENT_SNAPSHOT_DIR = DATA_DIR / "agent-snapshots"
 FRONTEND_DIST_DIR = Path(os.getenv("ZHIKUN_FRONTEND_DIST", ROOT / "frontend" / "dist"))

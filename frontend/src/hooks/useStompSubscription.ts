@@ -1,7 +1,7 @@
 /**
  * useStompSubscription — STOMP topic 订阅 React Hook
  *
- * 对齐 ZhikunCode 差异化升级方案 v1.5（B/C 共用前置任务）：
+ * 对齐浏览器 Agent 差异化升级方案 v1.5（B/C 共用前置任务）：
  * - 升级项 B（§3.5 多 Agent 协作可观测）：订阅 /user/queue/coordinator/{workflowId} 等
  * - 升级项 C（§4.5 自动可视化）：visualization 走 /queue/messages 主通路，不依赖本 Hook
  *

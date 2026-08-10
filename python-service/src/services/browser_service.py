@@ -675,7 +675,7 @@ class BrowserService:
         """返回指定会话收集到的所有 JS 错误"""
         return self._js_errors.get(session_id, [])
 
-    # ═══ 语义快照 (ZhikunCode v1.5 升级项 A MVP) ═══
+    # ═══ 语义快照 (浏览器 Agent 升级项 A MVP) ═══
 
     async def snapshot_semantic(
         self,

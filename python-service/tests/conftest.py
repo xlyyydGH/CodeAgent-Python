@@ -1,4 +1,4 @@
-"""ZhikunCode Python Service 测试共享 Fixture"""
+"""CodeAgent-Python 服务测试共享 Fixture"""
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport

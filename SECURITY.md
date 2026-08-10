@@ -2,7 +2,7 @@
 
 ## Security Architecture
 
-ZhikunCode incorporates multiple layers of security to protect users and their environments:
+CodeAgent-Python incorporates multiple layers of security to protect users and their environments:
 
 - **Bash Tool 8-Layer Security Check** — All shell command executions pass through an 8-layer validation pipeline including command parsing, blocklist filtering, path traversal detection, permission verification, sandbox enforcement, argument sanitization, output validation, and audit logging.
 - **Permission Control Pipeline** — A structured pipeline governs tool execution permissions, ensuring that sensitive operations require explicit user approval before proceeding.
@@ -29,10 +29,10 @@ We will acknowledge receipt within 48 hours and aim to provide an initial assess
 
 ## Security Best Practices
 
-When using ZhikunCode, we recommend:
+When using CodeAgent-Python, we recommend:
 
 - **Keep your `.env` file private** — never commit API keys or secrets to version control
 - **Review tool permissions** — always review and approve sensitive operations before execution
-- **Use workspace isolation** — run ZhikunCode within a dedicated project directory
+- **Use workspace isolation** — run CodeAgent-Python within a dedicated project directory
 - **Keep dependencies updated** — regularly update backend, frontend, and Python dependencies
 - **Restrict network access** — in production, bind services to `localhost` or use a reverse proxy with authentication

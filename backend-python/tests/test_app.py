@@ -124,7 +124,7 @@ def wait_until(predicate, timeout: float = 5.0, interval: float = 0.05):
 def test_health() -> None:
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json()["service"] == "zhikuncode-python-backend"
+    assert response.json()["service"] == "codeagent-python-backend"
 
 
 def test_react_frontend_root_when_built(tmp_path, monkeypatch) -> None:
@@ -143,7 +143,7 @@ def test_python_ui_fallback_page() -> None:
     response = client.get("/ui")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
-    assert "ZhikunCode Python" in response.text
+    assert "CodeAgent-Python" in response.text
 
 
 def test_python_ui_chat_roundtrip() -> None:

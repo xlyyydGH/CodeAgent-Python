@@ -234,7 +234,7 @@ class CommandRegistry:
             if name == "copy":
                 return CommandResult.text("Conversation copied to clipboard.")
             if name == "version":
-                return CommandResult.text("ZhikunCode Python Backend\nRuntime: Python")
+                return CommandResult.text("CodeAgent-Python Backend\nRuntime: Python")
             if name in {"bridge", "voice", "buddy", "passes", "torch", "peers"}:
                 return CommandResult.error_result(f"/{name} is not active in this runtime")
             if name == "remote-env":

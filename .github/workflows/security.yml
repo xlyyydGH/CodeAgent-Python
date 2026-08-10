@@ -1,5 +1,5 @@
 # =============================================================================
-# ZhikunCode — 安全扫描
+# CodeAgent-Python — 安全扫描
 # 触发条件：push 到 main / 每周一定时扫描
 # =============================================================================
 name: Security Scan
@@ -90,13 +90,13 @@ jobs:
 
       # 构建 Docker 镜像用于扫描
       - name: Build Docker image
-        run: docker build -t zhikuncode:scan .
+        run: docker build -t codeagent-python:scan .
 
       # 使用 Trivy 扫描容器镜像
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.24.0
         with:
-          image-ref: 'zhikuncode:scan'
+          image-ref: 'codeagent-python:scan'
           format: 'table'
           exit-code: '0'
           severity: 'CRITICAL,HIGH'

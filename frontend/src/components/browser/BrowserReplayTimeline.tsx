@@ -1,5 +1,5 @@
 /**
- * BrowserReplayTimeline — ZhikunCode v1.5 升级项 A MVP。
+ * BrowserReplayTimeline — 浏览器 Agent 升级项 A MVP。
  *
  * 会话级浏览器语义快照时间线：
  *   · 通过 GET /api/browser/replay/{sessionId} 拉取内存缓存中的快照序列

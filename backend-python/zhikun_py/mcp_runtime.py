@@ -213,7 +213,7 @@ class McpApprovalService:
 
 
 class TokenEncryptionService:
-    def __init__(self, secret: str = "zhikuncode-python") -> None:
+    def __init__(self, secret: str = "codeagent-python") -> None:
         self.secret = secret.encode("utf-8") or b"secret"
 
     def encrypt(self, token: str) -> str:
@@ -416,7 +416,7 @@ class McpClientManager:
                 "initialize",
                 {
                     "protocolVersion": "2024-11-05",
-                    "clientInfo": {"name": "zhikuncode-python", "version": "0.1"},
+                    "clientInfo": {"name": "codeagent-python", "version": "0.1"},
                     "capabilities": {"tools": {}, "prompts": {}, "resources": {}},
                 },
                 timeout_ms=timeout_ms,
@@ -450,7 +450,7 @@ class McpClientManager:
                 "initialize",
                 {
                     "protocolVersion": "2024-11-05",
-                    "clientInfo": {"name": "zhikuncode-python", "version": "0.1"},
+                    "clientInfo": {"name": "codeagent-python", "version": "0.1"},
                     "capabilities": {"tools": {}, "prompts": {}, "resources": {}},
                 },
                 timeout_ms=timeout_ms,
