@@ -1,0 +1,325 @@
+/**
+ * SwarmStore — Swarm 多Agent并行协作状态管理
+ * 管理 Swarm 实例状态、Worker 进度、权限冒泡请求和消息日志
+ */
+
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import type {
+    SwarmInfo,
+    WorkerInfo,
+    PermissionBubbleRequest,
+    SwarmLogEntry,
+    SwarmStateUpdatePayload,
+    WorkerProgressPayload,
+    PermissionBubblePayload,
+} from '@/types';
+import { generateUUID } from '@/utils/uuid';
+import { send, isConnected } from '@/api/stompClient';
+
+export interface SwarmStoreState {
+    /** 活跃 Swarm 实例 (swarmId → SwarmInfo) */
+    swarms: Map<string, SwarmInfo>;
+
+    /** 权限冒泡请求队列 */
+    pendingPermissions: PermissionBubbleRequest[];
+
+    /** Swarm 消息日志 */
+    logs: SwarmLogEntry[];
+
+    /** 当前查看的 Swarm ID */
+    activeSwarmId: string | null;
+
+    /** Swarm 面板是否可见 */
+    panelVisible: boolean;
+
+    // ═══ Actions ═══
+
+    /** 处理 swarm_state_update 消息 */
+    updateSwarmState: (data: SwarmStateUpdatePayload) => void;
+
+    /** 处理 worker_progress 消息 */
+    updateWorkerProgress: (data: WorkerProgressPayload) => void;
+
+    /** 处理 permission_bubble 消息 */
+    addPermissionBubble: (data: PermissionBubblePayload) => void;
+
+    /** 移除已处理的权限请求 */
+    removePermissionBubble: (requestId: string) => void;
+
+    /** 解决单个权限请求（通过 WebSocket 发送决策） */
+    resolvePermission: (requestId: string, decision: 'ALLOW' | 'DENY') => void;
+
+    /** 批量解决所有权限请求 */
+    resolveAll: (decision: 'ALLOW' | 'DENY') => void;
+
+    /** 添加日志条目 */
+    addLogEntry: (entry: Omit<SwarmLogEntry, 'id' | 'timestamp'>) => void;
+
+    /** 设置活跃 Swarm */
+    setActiveSwarm: (swarmId: string | null) => void;
+
+    /** 切换面板可见性 */
+    togglePanel: () => void;
+
+    /** 设置面板可见性 */
+    setPanelVisible: (visible: boolean) => void;
+
+    /** 清除指定 Swarm 的数据 */
+    removeSwarm: (swarmId: string) => void;
+
+    /** 清除所有数据 */
+    clearAll: () => void;
+}
+
+export const useSwarmStore = create<SwarmStoreState>()(
+    immer((set, get) => ({
+        swarms: new Map(),
+        pendingPermissions: [],
+        logs: [],
+        activeSwarmId: null,
+        panelVisible: false,
+
+        updateSwarmState: (data) => set((state) => {
+            const workers: Record<string, WorkerInfo> = {};
+            if (data.workers) {
+                Object.entries(data.workers).forEach(([id, ws]) => {
+                    workers[id] = {
+                        workerId: ws.workerId,
+                        status: ws.status,
+                        currentTask: ws.currentTask,
+                        toolCallCount: ws.toolCallCount,
+                        tokenConsumed: ws.tokenConsumed,
+                        recentToolCalls: [],
+                        progressPercent: null,
+                        totalSteps: null,
+                        completedSteps: null,
+                        errorMessage: null,
+                        currentStepDescription: null,
+                        terminationReason: null,
+                    };
+                });
+            }
+
+            state.swarms.set(data.swarmId, {
+                swarmId: data.swarmId,
+                teamName: data.swarmId, // Will be updated from API if needed
+                phase: data.phase,
+                activeWorkers: data.activeWorkers,
+                totalWorkers: data.totalWorkers,
+                completedTasks: data.completedTasks,
+                totalTasks: data.totalTasks,
+                workers,
+            });
+
+            // Auto-show panel when a swarm starts
+            if (data.phase === 'RUNNING' || data.phase === 'INITIALIZING') {
+                state.panelVisible = true;
+                state.activeSwarmId = data.swarmId;
+            }
+
+            // Add log entry for phase changes
+            state.logs.push({
+                id: generateUUID(),
+                timestamp: Date.now(),
+                type: 'message',
+                content: `Swarm ${data.swarmId} → ${data.phase} (${data.activeWorkers}/${data.totalWorkers} workers)`,
+            });
+
+            // Keep logs under 200 entries
+            if (state.logs.length > 200) {
+                state.logs = state.logs.slice(-200);
+            }
+        }),
+
+        updateWorkerProgress: (data) => set((state) => {
+            const swarm = state.swarms.get(data.swarmId);
+            if (swarm) {
+                swarm.workers[data.workerId] = {
+                    workerId: data.workerId,
+                    status: data.status,
+                    currentTask: data.currentTask,
+                    toolCallCount: data.toolCallCount,
+                    tokenConsumed: data.tokenConsumed,
+                    recentToolCalls: data.recentToolCalls || [],
+                    progressPercent: data.progressPercent ?? null,
+                    totalSteps: data.totalSteps ?? null,
+                    completedSteps: data.completedSteps ?? null,
+                    errorMessage: data.errorMessage ?? null,
+                    currentStepDescription: data.currentStepDescription ?? null,
+                    terminationReason: data.terminationReason ?? null,
+                };
+            }
+
+            // Add log for status transitions
+            if (data.status === 'WORKING') {
+                state.logs.push({
+                    id: generateUUID(),
+                    timestamp: Date.now(),
+                    type: 'worker_start',
+                    workerId: data.workerId,
+                    content: `Worker ${data.workerId} started: ${data.currentTask?.substring(0, 60) ?? ''}`,
+                });
+            } else if (data.status === 'IDLE') {
+                state.logs.push({
+                    id: generateUUID(),
+                    timestamp: Date.now(),
+                    type: 'worker_complete',
+                    workerId: data.workerId,
+                    content: `Worker ${data.workerId} completed (${data.toolCallCount} tools, ${data.tokenConsumed} tokens)`,
+                });
+            } else if (data.status === 'TERMINATED') {
+                state.logs.push({
+                    id: generateUUID(),
+                    timestamp: Date.now(),
+                    type: 'worker_error',
+                    workerId: data.workerId,
+                    content: `Worker ${data.workerId} terminated`,
+                });
+            }
+        }),
+
+        addPermissionBubble: (data) => set((state) => {
+            if (data.resolved || data.decision) {
+                state.pendingPermissions = state.pendingPermissions.filter(
+                    (p) => p.requestId !== data.requestId
+                );
+                state.logs.push({
+                    id: generateUUID(),
+                    timestamp: Date.now(),
+                    type: 'permission_bubble',
+                    workerId: data.workerId,
+                    content: `Permission ${data.requestId} resolved: ${data.decision ?? 'done'}`,
+                });
+                return;
+            }
+
+            const existingIndex = state.pendingPermissions.findIndex((p) => p.requestId === data.requestId);
+            const request = {
+                requestId: data.requestId,
+                swarmId: data.swarmId,
+                workerId: data.workerId,
+                toolName: data.toolName,
+                riskLevel: data.riskLevel,
+                reason: data.reason,
+                timestamp: Date.now(),
+                timeoutMs: data.timeoutMs,
+                expiresAt: data.expiresAt,
+                elapsedMs: data.elapsedMs,
+                remainingMs: data.remainingMs,
+                deadlineStatus: data.deadlineStatus,
+            };
+            if (existingIndex >= 0) {
+                state.pendingPermissions[existingIndex] = {
+                    ...state.pendingPermissions[existingIndex],
+                    ...request,
+                    timestamp: state.pendingPermissions[existingIndex].timestamp,
+                };
+            } else {
+                state.pendingPermissions.push(request);
+            }
+
+            state.logs.push({
+                id: generateUUID(),
+                timestamp: Date.now(),
+                type: 'permission_bubble',
+                workerId: data.workerId,
+                content: `Worker ${data.workerId} requests permission: ${data.toolName} (${data.riskLevel})`,
+            });
+        }),
+
+        removePermissionBubble: (requestId) => set((state) => {
+            state.pendingPermissions = state.pendingPermissions.filter(
+                (p) => p.requestId !== requestId
+            );
+        }),
+
+        resolvePermission: (requestId, decision) => {
+            const approved = decision === 'ALLOW';
+
+            // 尝试 WebSocket 发送，不可用时降级到 REST API
+            if (isConnected()) {
+                send('/app/permission-bubble', { requestId, approved });
+            } else {
+                fetch(`/api/swarm/permission/${requestId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ approved }),
+                }).catch((err) => {
+                    console.error('[PERM] REST fallback failed:', err);
+                });
+            }
+
+            // 从本地状态移除已处理的请求
+            set((state) => {
+                state.pendingPermissions = state.pendingPermissions.filter(
+                    (p) => p.requestId !== requestId
+                );
+            });
+        },
+
+        resolveAll: (decision) => {
+            const { pendingPermissions } = get();
+            if (pendingPermissions.length === 0) return;
+            const approved = decision === 'ALLOW';
+            const connected = isConnected();
+            const requestIds = pendingPermissions.map((perm) => perm.requestId);
+
+            for (const perm of pendingPermissions) {
+                if (connected && pendingPermissions.length === 1) {
+                    send('/app/permission-bubble', { requestId: perm.requestId, approved });
+                }
+            }
+            if (!connected || pendingPermissions.length > 1) {
+                fetch('/api/swarm/permissions/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requestIds, decision }),
+                }).catch((err) => {
+                    console.error('[PERM] REST batch fallback failed:', err);
+                });
+            }
+            set((state) => {
+                state.pendingPermissions = [];
+            });
+        },
+
+        addLogEntry: (entry) => set((state) => {
+            state.logs.push({
+                ...entry,
+                id: generateUUID(),
+                timestamp: Date.now(),
+            });
+            if (state.logs.length > 200) {
+                state.logs = state.logs.slice(-200);
+            }
+        }),
+
+        setActiveSwarm: (swarmId) => set((state) => {
+            state.activeSwarmId = swarmId;
+        }),
+
+        togglePanel: () => set((state) => {
+            state.panelVisible = !state.panelVisible;
+        }),
+
+        setPanelVisible: (visible) => set((state) => {
+            state.panelVisible = visible;
+        }),
+
+        removeSwarm: (swarmId) => set((state) => {
+            state.swarms.delete(swarmId);
+            if (state.activeSwarmId === swarmId) {
+                state.activeSwarmId = null;
+            }
+        }),
+
+        clearAll: () => set((state) => {
+            state.swarms.clear();
+            state.pendingPermissions = [];
+            state.logs = [];
+            state.activeSwarmId = null;
+            state.panelVisible = false;
+        }),
+    }))
+);

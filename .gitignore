@@ -1,0 +1,67 @@
+# Python caches
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+python-service/.venv/
+python-service/venv/
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Runtime state
+backend-python/data/
+backend-python/.pytest_cache/
+backend-python/.test-workspace/
+.pytest-tmp/
+.tmp/
+log/
+run-logs/
+*.log
+.service-pids
+.service-pids 2
+
+# Local secrets and databases
+.env
+.env.*
+!.env.example
+*.db
+*.db-wal
+*.db-shm
+*.pem
+*.key
+access-token
+zhikun.local.md
+.zhikun/
+
+# Editors and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Local work areas
+work/
+outputs/
+experiments/
+swe-bench/
+logs/run_evaluation/
+
+# Generated docs/test artifacts
+docs/local/
+docs/.DS_Store
+docs/test-results/**/coverage/
+docs/test-results/**/logs/
+docs/test-results/**/screenshots/
+docs/test-results/**/security/*.log
